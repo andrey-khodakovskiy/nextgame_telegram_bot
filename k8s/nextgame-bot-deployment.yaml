@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextgame-bot-deployment
+  namespace: finance-bot
+  labels:
+    app: nextgame-bot
+spec:
+  template:
+    metadata:
+      name: nextgame-bot
+      labels:
+        app: nextgame-bot
+    spec:
+      containers:
+      - name: nextgame-bot
+        image: mikejonson/private:nextgame-telegram-bot
+        imagePullPolicy: Always
+        env:
+        - name: "ADMIN"
+          value: "492347289"
+        envFrom:
+        - secretRef:
+            name: nextgame-bot-token
+        volumeMounts:
+        - name: timezone-msk
+          mountPath: "/etc/localtime"
+      volumes:
+      - name: timezone-msk
+        hostPath:
+          path: "/usr/share/zoneinfo/Europe/Moscow"
+      imagePullSecrets:
+      - name: docker-mikejonson
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextgame-bot
