@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: flaresolverr-service
+ namespace: nextgame-bot
+spec:
+ type: ClusterIP
+ ports:
+ - targetPort: 8191
+   port: 8191
+ selector:
+   app: flaresolverr

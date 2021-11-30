@@ -33,10 +33,6 @@ async def start(message: types.Message) -> None:
     while True:
         result = get_info()
 
-        # if result == "Exception":
-        #     await message.answer("Что-то пошло не так")
-        #     return
-
         if (
             result
             and result != "Exception"

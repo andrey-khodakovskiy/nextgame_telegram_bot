@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nextgame-bot-deployment
-  namespace: finance-bot
+  namespace: nextgame-bot
   labels:
     app: nextgame-bot
 spec:
@@ -19,6 +19,8 @@ spec:
         env:
         - name: "ADMIN"
           value: "492347289"
+        - name: "FLARESOLVERR_SERVICE"
+          value: "flaresolverr-service.nextgame-bot.svc.cluster.local"
         envFrom:
         - secretRef:
             name: nextgame-bot-token

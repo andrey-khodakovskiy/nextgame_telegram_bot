@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand, ParseMode
 
 from app.handlers.common import register_handlers_common
+from app.functions.functions import create_session
 
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ async def main():
         handlers=[console],
     )
     logger.error("Starting bot")
+    create_session()
 
     bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher(bot)
