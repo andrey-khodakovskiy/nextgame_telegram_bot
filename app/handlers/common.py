@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Dispatcher, types
 from decouple import config
 
-from app.functions.functions import get_info, get_text
+from app.functions.functions import get_info, get_text, create_session
 
 ADMIN = config("ADMIN", cast=int)
 
@@ -29,8 +29,12 @@ async def start(message: types.Message) -> None:
         )
         return
 
+    times = 0
     old_result = {}
     while True:
+        if times == 12:
+            create_session()
+
         result = get_info()
 
         if (
@@ -44,7 +48,8 @@ async def start(message: types.Message) -> None:
             text = "<u>ОБНОВЛЕНИЕ:</u>\n" + text
             await message.answer(text)
 
-        await asyncio.sleep(600)
+        times += 1
+        await asyncio.sleep(1800)
 
 
 def register_handlers_common(dp: Dispatcher) -> None:
