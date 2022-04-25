@@ -1,8 +1,11 @@
+import imp
 import logging
 from decouple import config
 from bs4 import BeautifulSoup
 import requests
 import emoji
+from prometheus_client import Gauge
+import timeit
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +31,8 @@ nextgame_request = {
 create_session_request = {"cmd": "sessions.create", "session": "100"}
 clear_sessions_request = {"cmd": "sessions.destroy", "session": "100"}
 
+request_duration = Gauge("nextgame_request_duration", "Nextgame request duration")
+
 
 def create_session():
     try:
@@ -47,6 +52,7 @@ def create_session():
 
 
 def get_info():
+    start = timeit.default_timer()
     try:
         keys = ["tour", "date", "home", "time", "guest", "stadium"]
         data = requests.post(
@@ -63,6 +69,10 @@ def get_info():
     except Exception as ex:
         logger.error(ex)
         result_dict = "Exception"
+
+    finish = timeit.default_timer()
+    execution_time = finish - start
+    request_duration.set(execution_time)
 
     return result_dict
 

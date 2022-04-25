@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prometheus-k8s
+  name: nextgame-bot
+  namespace: monitoring
+spec:
+  endpoints:
+  - path: /metrics
+    port: metrics
+    scheme: http
+    interval: 30s
+  jobLabel: prometheus-k8s
+  namespaceSelector:
+    matchNames:
+    - nextgame-bot
+  selector:
+    matchLabels:
+      app: nextgame-bot
