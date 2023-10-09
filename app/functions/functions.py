@@ -1,12 +1,8 @@
-import imp
 import logging
 from decouple import config
 from bs4 import BeautifulSoup
 import requests
 import emoji
-from prometheus_client import Gauge
-import timeit
-
 
 logger = logging.getLogger(__name__)
 console = logging.StreamHandler()
@@ -18,68 +14,32 @@ logging.basicConfig(
 )
 
 
-FLARESOLVERR_SERVICE = config("FLARESOLVERR_SERVICE")
 EXCLAMATION = emoji.emojize(":red_exclamation_mark:")
-
-nextgame_request = {
-    "cmd": "request.get",
-    "url": "https://lfl.ru/club5",
-    "session": "100",
-    "maxTimeout": 60000,
-}
-
-create_session_request = {"cmd": "sessions.create", "session": "100"}
-clear_sessions_request = {"cmd": "sessions.destroy", "session": "100"}
-
-request_duration = Gauge("nextgame_request_duration", "Nextgame request duration")
-
-
-def create_session():
-    try:
-        logger.warning("Clearing sessions")
-        result = requests.post(
-            f"http://{FLARESOLVERR_SERVICE}:8191/v1", json=clear_sessions_request
-        )
-        logger.warning(result)
-        logger.warning("Creating session")
-        result = requests.post(
-            f"http://{FLARESOLVERR_SERVICE}:8191/v1", json=create_session_request
-        )
-        logger.warning(result)
-
-    except Exception as ex:
-        logger.error(ex)
+nextgame_url = "https://lfl.ru/club5"
 
 
 def get_info():
-    start = timeit.default_timer()
     try:
         keys = ["tour", "date", "home", "time", "guest", "stadium"]
-        data = requests.post(
-            f"http://{FLARESOLVERR_SERVICE}:8191/v1", json=nextgame_request
-        )
-        data = data.json()
-        output = data["solution"]["response"]
+        data = requests.get(nextgame_url, verify=False)
+        data.encoding = "Windows-1251"
 
-        soup = BeautifulSoup(output, "lxml")
+        soup = BeautifulSoup(data.text, "lxml")
         result = soup.find("h3", string="Ближайшие матчи")
         result = result.find_parent("div", class_="cont fortable")
         result = list(result.stripped_strings)
         result_dict = {key: value for key, value in zip(keys, result[2:8])}
+        print(result_dict)
     except Exception as ex:
         logger.error(ex)
         result_dict = "Exception"
-
-    finish = timeit.default_timer()
-    execution_time = finish - start
-    request_duration.set(execution_time)
 
     return result_dict
 
 
 def get_text(result):
     text = f"{result['tour']}: {result['home']} - {result['guest']}\n{result['time']} {result['date']}\n"
-    if not "Октябрь" in result["stadium"]:
+    if (not "Октябрь" in result["stadium"]) or ("Красный" in result["stadium"]):
         text += f"{EXCLAMATION} "
     text += f"{result['stadium']}"
 

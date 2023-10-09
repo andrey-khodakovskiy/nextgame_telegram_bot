@@ -1,14 +1,11 @@
 import asyncio
 import logging
 from decouple import config
-from prometheus_client import start_http_server
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand, ParseMode
 
 from app.handlers.common import register_handlers_common
-from app.functions.functions import create_session
-
 
 logger = logging.getLogger(__name__)
 console = logging.StreamHandler()
@@ -29,8 +26,6 @@ async def main():
         handlers=[console],
     )
     logger.error("Starting bot")
-    start_http_server(8000)
-    create_session()
 
     bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher(bot)
